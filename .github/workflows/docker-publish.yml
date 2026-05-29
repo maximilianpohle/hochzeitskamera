@@ -53,7 +53,7 @@ jobs:
 
       # Enable emulation so the amd64 runner can also build arm64 images.
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e8 # v3.0.0
+        uses: docker/setup-qemu-action@v3
 
       # Login against a Docker registry except on PR
       # https://github.com/docker/login-action

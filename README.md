@@ -26,8 +26,22 @@ Diese WebApp greift auf die Kamera des Handys zu, nimmt ein Foto auf und speiche
    python app.py
    ```
 4. Im Browser öffnen:
-   - Lokal: `http://127.0.0.1:5000`
-   - Vom Handy im gleichen Netzwerk: `http://<DEINE-RECHNER-IP>:5000`
+   - Lokal: `http://127.0.0.1:8080`
+   - Vom Handy im gleichen Netzwerk: `http://<DEINE-RECHNER-IP>:8080`
+
+## Docker
+
+1. Docker Image bauen:
+   ```bash
+   docker build -t hochzeitskamera:latest .
+   ```
+2. Container starten:
+   ```bash
+   docker run --rm -p 8080:8080 -v "$(pwd)/uploads:/app/uploads" hochzeitskamera:latest
+   ```
+3. Im Browser öffnen:
+   - Lokal: `http://127.0.0.1:8080`
+   - Vom Handy im gleichen Netzwerk: `http://<DEINE-RECHNER-IP>:8080`
 
 ## Wichtiger Hinweis zu Kamera auf Handys
 

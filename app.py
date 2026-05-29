@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import re
 from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
@@ -28,11 +29,12 @@ def upload_photo():
     if not image_data or not isinstance(image_data, str):
         return jsonify({"ok": False, "error": "Kein Bild erhalten."}), 400
 
-    prefix = "data:image/jpeg;base64,"
-    if not image_data.startswith(prefix):
+    match = re.match(r"^data:(image/[a-zA-Z0-9.+-]+);base64,", image_data)
+    if not match:
         return jsonify({"ok": False, "error": "Ungültiges Bildformat."}), 400
 
-    encoded = image_data[len(prefix) :]
+    mime_type = match.group(1).lower()
+    encoded = image_data[match.end() :]
 
     try:
         raw = base64.b64decode(encoded, validate=True)
@@ -40,7 +42,17 @@ def upload_photo():
         return jsonify({"ok": False, "error": "Bilddaten konnten nicht dekodiert werden."}), 400
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"hochzeit_{timestamp}_{uuid4().hex[:8]}.jpg"
+    extension_map = {
+        "image/jpeg": "jpg",
+        "image/jpg": "jpg",
+        "image/png": "png",
+        "image/webp": "webp",
+        "image/heic": "heic",
+        "image/heif": "heif",
+    }
+    extension = extension_map.get(mime_type, "jpg")
+
+    filename = f"hochzeit_{timestamp}_{uuid4().hex[:8]}.{extension}"
     file_path = UPLOAD_DIR / filename
     file_path.write_bytes(raw)
 

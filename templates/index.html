@@ -16,10 +16,12 @@
       <section class="camera-card">
         <video id="preview" autoplay playsinline muted></video>
         <canvas id="snapshot" hidden></canvas>
+        <input id="fallbackFileInput" type="file" accept="image/*" capture="environment" hidden />
 
         <div class="controls">
           <button id="switchCameraBtn" type="button">Front/Rückkamera wechseln</button>
           <button id="captureBtn" type="button" class="primary">Foto aufnehmen</button>
+          <button id="fallbackUploadBtn" type="button" hidden>Foto via Kamera/Galerie wählen</button>
         </div>
 
         <p id="status" class="status">Kamera wird vorbereitet...</p>

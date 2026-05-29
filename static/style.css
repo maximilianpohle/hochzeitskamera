@@ -79,6 +79,10 @@ button:active {
   transform: scale(0.99);
 }
 
+button:disabled {
+  opacity: 0.5;
+}
+
 .status {
   min-height: 1.3rem;
   margin: 0.9rem 0 0;

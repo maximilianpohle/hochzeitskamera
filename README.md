@@ -52,6 +52,9 @@ Viele mobile Browser erlauben Kamerazugriff nur auf:
 
 Für echte Nutzung auf dem Handy im WLAN ist daher oft HTTPS nötig (z. B. via Reverse Proxy oder Tunnel).
 
+Auf iPhone (auch Brave) ist `getUserMedia` bei reinem `http://` typischerweise blockiert.
+Die App zeigt dann einen Fallback-Button an, ueber den ein Foto per Kamera-App oder Galerie ausgewaehlt und trotzdem hochgeladen werden kann.
+
 ## Speicherort der Fotos
 
 Hochgeladene Bilder liegen in:

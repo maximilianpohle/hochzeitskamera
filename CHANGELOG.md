@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.5 - 2026-05-29
+- Docker Compose Setup hinzugefuegt.
+- Nginx als Reverse Proxy vor die Flask-App gesetzt.
+- HTTPS-Termination mit automatischer Erstellung eines selbstsignierten Zertifikats im Nginx-Container hinzugefuegt.
+- HTTP-auf-HTTPS-Redirect ueber Nginx konfiguriert.
+
 ## 0.1.4 - 2026-05-29
 - Frontend um HTTP-Fallback erweitert: Wenn Live-Kamera (getUserMedia) nicht verfuegbar ist, kann ein Foto ueber Kamera/Galerie ausgewaehlt und hochgeladen werden.
 - Statusmeldungen fuer iPhone/Brave bei HTTP verbessert (Hinweis auf HTTPS/localhost).

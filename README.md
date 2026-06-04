@@ -43,6 +43,26 @@ Diese WebApp greift auf die Kamera des Handys zu, nimmt ein Foto auf und speiche
    - Lokal: `http://127.0.0.1:8080`
    - Vom Handy im gleichen Netzwerk: `http://<DEINE-RECHNER-IP>:8080`
 
+## Docker Compose mit Nginx und HTTPS
+
+1. Stack bauen und starten:
+   ```bash
+   docker compose up --build -d
+   ```
+2. Im Browser oeffnen:
+   - Lokal: `https://127.0.0.1`
+   - Vom Handy im gleichen Netzwerk: `https://<DEINE-RECHNER-IP>`
+3. Logs pruefen (optional):
+   ```bash
+   docker compose logs -f
+   ```
+
+Hinweise:
+
+- Nginx leitet `http://` automatisch auf `https://` um.
+- Beim ersten Start erzeugt der Nginx-Container ein selbstsigniertes Zertifikat.
+- Auf iPhone kann fuer Live-Kamera ein vertrauenswuerdiges Zertifikat noetig sein. Bei selbstsigniertem Zertifikat kann weiterhin der Upload-Fallback genutzt werden.
+
 ## Wichtiger Hinweis zu Kamera auf Handys
 
 Viele mobile Browser erlauben Kamerazugriff nur auf:

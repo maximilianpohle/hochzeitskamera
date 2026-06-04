@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.17 - 2026-06-04
+- Nginx-User explizit auf `root` gesetzt, damit in rootless/podman Setups kein `chown(..., 101)` auf Temp-Verzeichnisse fehlschlaegt.
+- Behebt den wiederholten Startfehler `Operation not permitted` bei `client_temp`.
+
 ## 0.1.16 - 2026-06-04
 - Nginx-Konfiguration auf neue HTTP/2-Syntax umgestellt (`listen 443 ssl;` + `http2 on;`) und Deprecation-Warnung behoben.
 - Nginx-Temp-Pfade explizit nach `/tmp/*` verlegt, damit in gehaerteten/rootless Containern kein `chown` auf `/var/cache/nginx/client_temp` mehr fehlschlaegt.

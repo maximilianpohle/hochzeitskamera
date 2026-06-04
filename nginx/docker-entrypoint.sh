@@ -1,6 +1,8 @@
 #!/bin/sh
 set -eu
 
+umask 077
+
 CERT_DIR="/etc/nginx/certs"
 CRT_FILE="$CERT_DIR/selfsigned.crt"
 KEY_FILE="$CERT_DIR/selfsigned.key"
@@ -13,5 +15,8 @@ if [ ! -f "$CRT_FILE" ] || [ ! -f "$KEY_FILE" ]; then
     -out "$CRT_FILE" \
     -subj "/CN=localhost"
 fi
+
+chmod 600 "$KEY_FILE"
+chmod 644 "$CRT_FILE"
 
 nginx -g "daemon off;"

@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import base64
+import os
 import re
+from collections import defaultdict, deque
 from datetime import datetime
 from pathlib import Path
+from threading import Lock
+from time import monotonic
 from uuid import uuid4
 
 from flask import Flask, jsonify, render_template, request
@@ -16,6 +20,11 @@ UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024  # 20 MB
 
+RATE_LIMIT_UPLOADS_PER_SECOND = 20
+RATE_LIMIT_WINDOW_SECONDS = 1.0
+_ip_upload_timestamps: defaultdict[str, deque[float]] = defaultdict(deque)
+_rate_limit_lock = Lock()
+
 
 def get_app_version() -> str:
     try:
@@ -24,13 +33,60 @@ def get_app_version() -> str:
         return "dev"
 
 
+def get_client_ip() -> str:
+    # Prefer X-Real-IP from Nginx, then fall back to X-Forwarded-For.
+    real_ip = request.headers.get("X-Real-IP", "").strip()
+    if real_ip:
+        return real_ip
+
+    forwarded_for = request.headers.get("X-Forwarded-For", "").strip()
+    if forwarded_for:
+        return forwarded_for.split(",")[0].strip()
+
+    return request.remote_addr or "unknown"
+
+
+def is_rate_limited(ip_address: str) -> bool:
+    now = monotonic()
+    cutoff = now - RATE_LIMIT_WINDOW_SECONDS
+
+    with _rate_limit_lock:
+        timestamps = _ip_upload_timestamps[ip_address]
+
+        while timestamps and timestamps[0] < cutoff:
+            timestamps.popleft()
+
+        if len(timestamps) >= RATE_LIMIT_UPLOADS_PER_SECOND:
+            return True
+
+        timestamps.append(now)
+        return False
+
+
 @app.get("/")
 def index():
     return render_template("index.html", app_version=get_app_version())
 
 
+@app.get("/healthz")
+def healthz():
+    return jsonify({"ok": True}), 200
+
+
 @app.post("/upload")
 def upload_photo():
+    client_ip = get_client_ip()
+    if is_rate_limited(client_ip):
+        return (
+            jsonify(
+                {
+                    "ok": False,
+                    "error": "Rate Limit erreicht: maximal 20 Bilder pro Sekunde pro IP.",
+                }
+            ),
+            429,
+        )
+
     payload = request.get_json(silent=True) or {}
     image_data = payload.get("image")
 
@@ -68,4 +124,5 @@ def upload_photo():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    debug_mode = os.getenv("FLASK_DEBUG", "0") == "1"
+    app.run(host="0.0.0.0", port=8080, debug=debug_mode)

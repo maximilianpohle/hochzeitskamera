@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.1.16 - 2026-06-04
+- Nginx-Konfiguration auf neue HTTP/2-Syntax umgestellt (`listen 443 ssl;` + `http2 on;`) und Deprecation-Warnung behoben.
+- Nginx-Temp-Pfade explizit nach `/tmp/*` verlegt, damit in gehaerteten/rootless Containern kein `chown` auf `/var/cache/nginx/client_temp` mehr fehlschlaegt.
+
+## 0.1.15 - 2026-06-04
+- Compose-Healthcheck fuer den App-Container auf robuste CMD-SHELL-Variante umgestellt.
+- Fix fuer Podman/Docker-Compose Parsing-Problem, bei dem der Python `-c` Ausdruck falsch zerlegt wurde und der Container dadurch `unhealthy` blieb.
+
+## 0.1.14 - 2026-06-04
+- Client-IP-Erkennung im Backend erweitert: X-Real-IP wird nun bevorzugt ausgewertet (mit Fallback auf X-Forwarded-For und remote_addr).
+
+## 0.1.13 - 2026-06-04
+- Upload-Endpoint um serverseitiges IP-Rate-Limit erweitert: maximal 20 Bilder pro Sekunde pro IP.
+- Bei Ueberschreitung wird HTTP 429 (Too Many Requests) zurueckgegeben.
+
+## 0.1.12 - 2026-06-04
+- Docker-Setup gehaertet: App laeuft als Non-Root-User mit Gunicorn statt Flask-Dev-Server.
+- Healthchecks fuer App und Nginx in docker-compose hinzugefuegt sowie Startabhaengigkeit auf service_healthy gesetzt.
+- Container-Sicherheitsoptionen aktiviert: read_only Root-Filesystem, no-new-privileges, Capabilities reduziert, tmpfs fuer Schreibpfade.
+- Nginx gehaertet: server_tokens off, zusaetzliche Security-Header, PID in /tmp und restriktivere Zertifikat-Dateirechte.
+
 ## 0.1.11 - 2026-06-04
 - Kleine Versionsnummer unten rechts im UI angezeigt.
 - Versionsanzeige wird dynamisch aus der Datei VERSION gelesen.

@@ -79,5 +79,5 @@ Die App zeigt dann einen Fallback-Button an, ueber den ein Foto per Kamera-App o
 
 Hochgeladene Bilder liegen in:
 
-- `uploads/hochzeit_YYYYMMDD_HHMMSS_<id>.jpg`
+- `uploads/YYYYMMDD_HHMMSS_<id>.jpg`
 # hochzeitskamera

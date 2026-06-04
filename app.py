@@ -60,7 +60,7 @@ def upload_photo():
     }
     extension = extension_map.get(mime_type, "jpg")
 
-    filename = f"hochzeit_{timestamp}_{uuid4().hex[:8]}.{extension}"
+    filename = f"{timestamp}_{uuid4().hex[:8]}.{extension}"
     file_path = UPLOAD_DIR / filename
     file_path.write_bytes(raw)
 

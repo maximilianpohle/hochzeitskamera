@@ -18,14 +18,84 @@ function hasLiveCameraApi() {
   );
 }
 
-function setStatus(text, variant = "") {
+function inferExtensionFromDataUrl(imageDataUrl) {
+  const mimeMatch = /^data:(image\/[a-zA-Z0-9.+-]+);base64,/.exec(imageDataUrl || "");
+  if (!mimeMatch) {
+    return "jpg";
+  }
+
+  const mimeType = mimeMatch[1].toLowerCase();
+  if (mimeType === "image/jpeg") {
+    return "jpg";
+  }
+  if (mimeType === "image/png") {
+    return "png";
+  }
+  if (mimeType === "image/webp") {
+    return "webp";
+  }
+
+  return "jpg";
+}
+
+function buildDownloadFilename(serverFilename, imageDataUrl) {
+  if (serverFilename && /\.[a-z0-9]+$/i.test(serverFilename)) {
+    return serverFilename;
+  }
+
+  const extension = inferExtensionFromDataUrl(imageDataUrl);
+  if (serverFilename) {
+    return `${serverFilename}.${extension}`;
+  }
+
+  return `foto-${Date.now()}.${extension}`;
+}
+
+function downloadImage(imageDataUrl, serverFilename) {
+  const downloadName = buildDownloadFilename(serverFilename, imageDataUrl);
+  const downloadLink = document.createElement("a");
+  downloadLink.href = imageDataUrl;
+  downloadLink.download = downloadName;
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  downloadLink.remove();
+  setStatus(`Download gestartet: ${downloadName}`, "ok");
+}
+
+function setStatus(text, variant = "", options = {}) {
   if (!statusToastEl) {
     return;
   }
 
   statusToastEl.hidden = false;
-  statusToastEl.textContent = text;
   statusToastEl.className = `toast ${variant}`.trim();
+
+  statusToastEl.textContent = "";
+  const contentEl = document.createElement("div");
+  contentEl.className = "toast-content";
+
+  const messageEl = document.createElement("span");
+  messageEl.className = "toast-message";
+  messageEl.textContent = text;
+  contentEl.appendChild(messageEl);
+
+  if (options.actionLabel && typeof options.actionHandler === "function") {
+    const actionBtn = document.createElement("button");
+    actionBtn.type = "button";
+    actionBtn.className = "toast-action-btn";
+    actionBtn.textContent = options.actionLabel;
+    actionBtn.addEventListener("click", () => {
+      try {
+        options.actionHandler();
+      } catch (error) {
+        console.error(error);
+        setStatus("Download konnte nicht gestartet werden.", "error");
+      }
+    });
+    contentEl.appendChild(actionBtn);
+  }
+
+  statusToastEl.appendChild(contentEl);
 
   // Restart animation for repeated updates.
   statusToastEl.classList.remove("show");
@@ -36,12 +106,14 @@ function setStatus(text, variant = "") {
     window.clearTimeout(toastHideTimeoutId);
   }
 
+  const hideAfterMs = options.actionLabel ? 6500 : 3200;
+
   toastHideTimeoutId = window.setTimeout(() => {
     statusToastEl.classList.remove("show");
     window.setTimeout(() => {
       statusToastEl.hidden = true;
     }, 220);
-  }, 3200);
+  }, hideAfterMs);
 }
 
 function setLiveCameraControlsEnabled(enabled) {
@@ -152,7 +224,10 @@ async function capturePhoto() {
 
   try {
     const filename = await uploadImage(imageDataUrl);
-    setStatus(`Gespeichert als ${filename}`, "ok");
+    setStatus(`Gespeichert als ${filename}`, "ok", {
+      actionLabel: "💾 Speichern",
+      actionHandler: () => downloadImage(imageDataUrl, filename),
+    });
   } catch (error) {
     console.error(error);
     setStatus(error.message, "error");
@@ -165,7 +240,10 @@ async function uploadSelectedFile(file) {
   try {
     const imageDataUrl = await fileToDataUrl(file);
     const filename = await uploadImage(imageDataUrl);
-    setStatus(`Gespeichert als ${filename}`, "ok");
+    setStatus(`Gespeichert als ${filename}`, "ok", {
+      actionLabel: "💾 Speichern",
+      actionHandler: () => downloadImage(imageDataUrl, filename),
+    });
   } catch (error) {
     console.error(error);
     setStatus(error.message || "Upload fehlgeschlagen.", "error");

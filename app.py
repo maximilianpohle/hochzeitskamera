@@ -10,15 +10,23 @@ from flask import Flask, jsonify, render_template, request
 
 BASE_DIR = Path(__file__).resolve().parent
 UPLOAD_DIR = BASE_DIR / "uploads"
+VERSION_FILE = BASE_DIR / "VERSION"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024  # 20 MB
 
 
+def get_app_version() -> str:
+    try:
+        return VERSION_FILE.read_text(encoding="utf-8").strip() or "dev"
+    except FileNotFoundError:
+        return "dev"
+
+
 @app.get("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", app_version=get_app_version())
 
 
 @app.post("/upload")

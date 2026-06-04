@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.11 - 2026-06-04
+- Kleine Versionsnummer unten rechts im UI angezeigt.
+- Versionsanzeige wird dynamisch aus der Datei VERSION gelesen.
+
+## 0.1.10 - 2026-06-04
+- Speichern-Button im Erfolgs-Toast unter die Meldung verschoben (eigene Zeile fuer bessere Lesbarkeit).
+
+## 0.1.9 - 2026-06-04
+- Erfolgs-Toast nach Upload um eine Aktion erweitert: "💾 Speichern" startet den lokalen Bild-Download.
+- Download-Dateiname wird aus dem Server-Dateinamen und Bildformat abgeleitet.
+
 ## 0.1.8 - 2026-06-04
 - Ueberschrift im oberen Bereich entfernt, damit mehr Platz fuer das Kamerabild verfuegbar ist.
 - Mobile Layout auf Vollhoehe optimiert, damit die Seite auf Handys nicht mehr gescrollt werden muss.

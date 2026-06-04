@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.18 - 2026-06-04
+- Fallback-Option "Foto via Kamera/Galerie wählen" ist nun immer sichtbar, auch wenn Live-Kamera aktiv ist.
+- Ermoeglicht jederzeit den direkten Wechsel auf die Handy-Kamera/Galerie-Auswahl.
+
 ## 0.1.17 - 2026-06-04
 - Nginx-User explizit auf `root` gesetzt, damit in rootless/podman Setups kein `chown(..., 101)` auf Temp-Verzeichnisse fehlschlaegt.
 - Behebt den wiederholten Startfehler `Operation not permitted` bei `client_temp`.

@@ -150,7 +150,7 @@ async function startCamera() {
     video.srcObject = stream;
     await video.play();
     setLiveCameraControlsEnabled(true);
-    setFallbackVisible(false);
+    setFallbackVisible(true);
     setStatus(`Kamera aktiv (${facingMode === "user" ? "Front" : "Rück"}).`, "ok");
   } catch (error) {
     console.error(error);
@@ -287,6 +287,6 @@ if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     setStatus("Browser unterstützt keine Live-Kamera-API. Nutze den Foto-Upload-Button.", "error");
   }
 } else {
-  setFallbackVisible(false);
+  setFallbackVisible(true);
   startCamera();
 }

@@ -8,10 +8,6 @@
   </head>
   <body>
     <main class="app-shell">
-      <header class="top-bar">
-        <h1>Hochzeitskamera</h1>
-      </header>
-
       <section class="camera-card">
         <video id="preview" autoplay playsinline muted></video>
         <canvas id="snapshot" hidden></canvas>
@@ -22,10 +18,12 @@
           <button id="captureBtn" type="button" class="primary">Foto aufnehmen</button>
           <button id="fallbackUploadBtn" type="button" hidden>Foto via Kamera/Galerie wählen</button>
         </div>
-
-        <p id="status" class="status">Kamera wird vorbereitet...</p>
       </section>
     </main>
+
+    <div class="toast-wrap" aria-live="polite" aria-atomic="true">
+      <div id="statusToast" class="toast" hidden></div>
+    </div>
 
     <script src="{{ url_for('static', filename='app.js') }}" defer></script>
   </body>

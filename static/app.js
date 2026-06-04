@@ -4,10 +4,11 @@ const captureBtn = document.getElementById("captureBtn");
 const switchCameraBtn = document.getElementById("switchCameraBtn");
 const fallbackUploadBtn = document.getElementById("fallbackUploadBtn");
 const fallbackFileInput = document.getElementById("fallbackFileInput");
-const statusEl = document.getElementById("status");
+const statusToastEl = document.getElementById("statusToast");
 
 let stream = null;
 let facingMode = "environment";
+let toastHideTimeoutId = null;
 
 function hasLiveCameraApi() {
   return Boolean(
@@ -18,8 +19,29 @@ function hasLiveCameraApi() {
 }
 
 function setStatus(text, variant = "") {
-  statusEl.textContent = text;
-  statusEl.className = `status ${variant}`.trim();
+  if (!statusToastEl) {
+    return;
+  }
+
+  statusToastEl.hidden = false;
+  statusToastEl.textContent = text;
+  statusToastEl.className = `toast ${variant}`.trim();
+
+  // Restart animation for repeated updates.
+  statusToastEl.classList.remove("show");
+  void statusToastEl.offsetWidth;
+  statusToastEl.classList.add("show");
+
+  if (toastHideTimeoutId) {
+    window.clearTimeout(toastHideTimeoutId);
+  }
+
+  toastHideTimeoutId = window.setTimeout(() => {
+    statusToastEl.classList.remove("show");
+    window.setTimeout(() => {
+      statusToastEl.hidden = true;
+    }, 220);
+  }, 3200);
 }
 
 function setLiveCameraControlsEnabled(enabled) {

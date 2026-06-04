@@ -25,24 +25,14 @@ body {
 .app-shell {
   width: min(720px, 100%);
   margin: 0 auto;
-  padding: 1rem 1rem 2rem;
-}
-
-.top-bar h1 {
-  margin: 0;
-  font-size: clamp(1.5rem, 4vw, 2.1rem);
-}
-
-.top-bar p {
-  margin: 0.3rem 0 1.2rem;
-  opacity: 0.9;
+  padding: 0.75rem 0.75rem 1rem;
 }
 
 .camera-card {
   background: linear-gradient(165deg, #fffdf8, var(--card));
   border: 1px solid #f1d3bc;
   border-radius: 1.1rem;
-  padding: 0.9rem;
+  padding: 0.75rem;
   box-shadow: 0 16px 40px rgba(104, 49, 31, 0.12);
 }
 
@@ -50,7 +40,7 @@ body {
   width: 100%;
   border-radius: 0.9rem;
   background: #000;
-  max-height: 70vh;
+  max-height: 75vh;
   object-fit: cover;
 }
 
@@ -83,18 +73,88 @@ button:disabled {
   opacity: 0.5;
 }
 
-.status {
-  min-height: 1.3rem;
-  margin: 0.9rem 0 0;
-  font-size: 0.96rem;
+.toast-wrap {
+  position: fixed;
+  top: max(0.75rem, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(92vw, 620px);
+  z-index: 1000;
+  pointer-events: none;
 }
 
-.status.ok {
+.toast {
+  border-radius: 0.8rem;
+  border: 1px solid #f1d3bc;
+  background: rgba(255, 250, 242, 0.97);
+  box-shadow: 0 10px 28px rgba(61, 23, 12, 0.2);
+  color: var(--ink);
+  font-weight: 600;
+  padding: 0.75rem 0.9rem;
+  opacity: 0;
+  transform: translateY(-12px);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast.ok {
+  border-color: #9cc7b0;
   color: var(--ok);
 }
 
-.status.error {
+.toast.error {
+  border-color: #dfb1b6;
   color: #9a1b25;
+}
+
+@media (max-width: 699px) {
+  body {
+    min-height: 100dvh;
+    overflow: hidden;
+  }
+
+  .app-shell {
+    height: 100dvh;
+    padding: 0.5rem;
+  }
+
+  .camera-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem;
+  }
+
+  #preview {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+    width: 100%;
+  }
+
+  .controls {
+    margin-top: 0.55rem;
+    flex-shrink: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  #switchCameraBtn {
+    order: 1;
+  }
+
+  #fallbackUploadBtn {
+    order: 2;
+  }
+
+  #captureBtn {
+    order: 3;
+  }
 }
 
 @media (min-width: 700px) {

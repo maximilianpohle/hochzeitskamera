@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.1.8 - 2026-06-04
+- Ueberschrift im oberen Bereich entfernt, damit mehr Platz fuer das Kamerabild verfuegbar ist.
+- Mobile Layout auf Vollhoehe optimiert, damit die Seite auf Handys nicht mehr gescrollt werden muss.
+- Button-Reihenfolge auf Handys angepasst: "Foto aufnehmen" ist nun der unterste Button.
+
+## 0.1.7 - 2026-06-04
+- Untere Status-Textanzeige im Kartenbereich entfernt.
+- Rueckmeldungen werden jetzt ausschliesslich ueber das obere Toast-Popup angezeigt.
+
+## 0.1.6 - 2026-06-04
+- Statusmeldungen (z. B. "Gespeichert als ...") werden nun als Toast-Popup am oberen Bildschirmrand angezeigt.
+- Nutzer muessen fuer wichtige Rueckmeldungen nicht mehr nach unten scrollen.
+
 ## 0.1.5 - 2026-05-29
 - Docker Compose Setup hinzugefuegt.
 - Nginx als Reverse Proxy vor die Flask-App gesetzt.

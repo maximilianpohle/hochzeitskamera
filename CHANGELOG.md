@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.19 - 2026-06-05
+- Komplettes Frontend-Farbschema auf Eukalyptus-Palette umgestellt (Hintergrund, Karte, Buttons, Toasts, Versionsanzeige).
+- Alle warmen Rot-/Beige-Toene durch harmonische Gruen- und Salbeiabstufungen ersetzt.
+
 ## 0.1.18 - 2026-06-04
 - Fallback-Option "Foto via Kamera/Galerie wählen" ist nun immer sichtbar, auch wenn Live-Kamera aktiv ist.
 - Ermoeglicht jederzeit den direkten Wechsel auf die Handy-Kamera/Galerie-Auswahl.

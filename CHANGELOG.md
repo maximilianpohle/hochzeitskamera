@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.22 - 2026-06-20
+- Kamera-Aufnahmen werden nun als PNG exportiert, damit sie ohne JPEG-Kompression gespeichert werden.
+- Galerie-Uploads bleiben unveraendert und verwenden weiterhin die Originaldatei.
+
+## 0.1.21 - 2026-06-20
+- JPEG-Qualitaet im Kamera-Pfad angehoben, damit Fotos weniger sichtbar komprimiert werden.
+- Galerie-Uploads bleiben davon unberuehrt, da sie weiterhin die Originaldatei verwenden.
+
 ## 0.1.20 - 2026-06-20
 - Datei-Upload auf iPhone korrigiert, indem das `capture`-Attribut vom versteckten Datei-Input entfernt wurde.
 - Dadurch ist die Galerie-Auswahl wieder verfuegbar, statt den Dialog auf Kamera-Verhalten zu beschraenken.

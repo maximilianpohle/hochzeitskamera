@@ -218,8 +218,8 @@ async function capturePhoto() {
   const context = canvas.getContext("2d");
   context.drawImage(video, 0, 0, width, height);
 
-  // jpeg keeps upload size lower than png for mobile captures.
-  const imageDataUrl = canvas.toDataURL("image/jpeg", 0.92);
+  // PNG preserves the canvas pixels without JPEG compression.
+  const imageDataUrl = canvas.toDataURL("image/png");
   setStatus("Foto wird gespeichert...");
 
   try {

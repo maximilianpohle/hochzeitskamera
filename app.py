@@ -18,7 +18,7 @@ VERSION_FILE = BASE_DIR / "VERSION"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 app = Flask(__name__)
-app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024  # 20 MB
+app.config["MAX_CONTENT_LENGTH"] = 80 * 1024 * 1024  # 80 MB
 
 RATE_LIMIT_UPLOADS_PER_SECOND = 20
 RATE_LIMIT_WINDOW_SECONDS = 1.0
@@ -71,6 +71,19 @@ def index():
 @app.get("/healthz")
 def healthz():
     return jsonify({"ok": True}), 200
+
+
+@app.errorhandler(413)
+def payload_too_large(_error):
+    return (
+        jsonify(
+            {
+                "ok": False,
+                "error": "Upload zu gross. Bitte kleineres Bild waehlen oder nur JPG verwenden.",
+            }
+        ),
+        413,
+    )
 
 
 @app.post("/upload")

@@ -343,10 +343,23 @@ async function uploadImage(imageDataUrl, captureId) {
     body: JSON.stringify({ image: imageDataUrl, capture_id: captureId }),
   });
 
-  const result = await response.json();
+  let result = null;
+  try {
+    result = await response.json();
+  } catch {
+    result = null;
+  }
 
-  if (!response.ok || !result.ok) {
-    throw new Error(result.error || "Upload fehlgeschlagen.");
+  if (!response.ok || !result || !result.ok) {
+    if (result && result.error) {
+      throw new Error(result.error);
+    }
+
+    if (response.status === 413) {
+      throw new Error("Upload zu gross. Bitte kleineres Bild waehlen oder nur JPG verwenden.");
+    }
+
+    throw new Error(`Upload fehlgeschlagen (HTTP ${response.status}).`);
   }
 
   return result;

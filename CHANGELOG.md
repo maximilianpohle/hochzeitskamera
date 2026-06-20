@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.38 - 2026-06-20
+- Upload-Groessenlimit fuer den Server auf 80 MB angehoben, damit grosse PNG-Dateien nicht mehr vorzeitig abgewiesen werden.
+- Bei zu grossen Payloads gibt der Server jetzt eine klare JSON-Fehlermeldung (HTTP 413) zurueck.
+- Frontend-Uploadfehler verbessert: auch bei nicht-JSON Antworten wird eine verstaendliche Meldung angezeigt.
+
 ## 0.1.37 - 2026-06-20
 - Aufnehmen-Button auf nativen Kamera-App-Modus umgestellt: statt Live-Video wird immer die Kamera-App geoeffnet.
 - Live-Preview und Front/Rueckkamera-Schalter werden in diesem Modus ausgeblendet, um unscharfe Video-Frame-Aufnahmen zu vermeiden.

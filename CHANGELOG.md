@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.20 - 2026-06-20
+- Datei-Upload auf iPhone korrigiert, indem das `capture`-Attribut vom versteckten Datei-Input entfernt wurde.
+- Dadurch ist die Galerie-Auswahl wieder verfuegbar, statt den Dialog auf Kamera-Verhalten zu beschraenken.
+
 ## 0.1.19 - 2026-06-05
 - Komplettes Frontend-Farbschema auf Eukalyptus-Palette umgestellt (Hintergrund, Karte, Buttons, Toasts, Versionsanzeige).
 - Alle warmen Rot-/Beige-Toene durch harmonische Gruen- und Salbeiabstufungen ersetzt.

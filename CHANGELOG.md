@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.26 - 2026-06-20
+- Upload-Banner sprachlich entschärft, damit er nicht wie eine feste Reihenfolge wirkt.
+- Anzeige betont jetzt nur noch die noch laufenden Uploads im Hintergrund.
+
+## 0.1.25 - 2026-06-20
+- Upload-Banner optisch als aktive Warteschlange mit Balken gestaltet, damit ausstehende Uploads nicht wie ein Hänger wirken.
+- Text im Banner praeziser formuliert, wenn mehrere Bilder noch im Hintergrund laufen.
+
 ## 0.1.24 - 2026-06-20
 - Banner fuer ausstehende Uploads hinzugefuegt, damit sichtbar bleibt, wenn Bilder noch verarbeitet werden.
 - Vor dem Verlassen der Seite wird jetzt bei laufenden Uploads eine Browser-Warnung angezeigt.

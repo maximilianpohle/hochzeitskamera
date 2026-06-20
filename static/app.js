@@ -5,6 +5,8 @@ const switchCameraBtn = document.getElementById("switchCameraBtn");
 const fallbackUploadBtn = document.getElementById("fallbackUploadBtn");
 const fallbackFileInput = document.getElementById("fallbackFileInput");
 const uploadBannerEl = document.getElementById("uploadBanner");
+const uploadBannerTextEl = document.getElementById("uploadBannerText");
+const uploadBannerBarEl = document.getElementById("uploadBannerBar");
 const statusToastEl = document.getElementById("statusToast");
 
 let stream = null;
@@ -128,21 +130,23 @@ function setFallbackVisible(visible) {
 }
 
 function updateUploadBanner() {
-  if (!uploadBannerEl) {
+  if (!uploadBannerEl || !uploadBannerTextEl || !uploadBannerBarEl) {
     return;
   }
 
   if (pendingUploads <= 0) {
     uploadBannerEl.hidden = true;
-    uploadBannerEl.textContent = "";
+    uploadBannerTextEl.textContent = "";
+    uploadBannerBarEl.style.transform = "translateX(-45%)";
     return;
   }
 
   uploadBannerEl.hidden = false;
-  uploadBannerEl.textContent =
+  uploadBannerTextEl.textContent =
     pendingUploads === 1
-      ? "1 Bild wird noch hochgeladen. Bitte die Seite nicht schliessen."
-      : `${pendingUploads} Bilder werden noch hochgeladen. Bitte die Seite nicht schliessen.`;
+      ? "1 Upload laeuft noch im Hintergrund. Bitte die Seite nicht schliessen."
+      : `${pendingUploads} Uploads laufen noch im Hintergrund. Bitte die Seite nicht schliessen.`;
+  uploadBannerBarEl.style.transform = "translateX(-45%)";
 }
 
 function stopStream() {

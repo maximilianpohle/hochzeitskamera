@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.24 - 2026-06-20
+- Banner fuer ausstehende Uploads hinzugefuegt, damit sichtbar bleibt, wenn Bilder noch verarbeitet werden.
+- Vor dem Verlassen der Seite wird jetzt bei laufenden Uploads eine Browser-Warnung angezeigt.
+
+## 0.1.23 - 2026-06-20
+- Uploads laufen nun im Hintergrund, damit direkt nach dem Ausloesen das naechste Bild geschossen werden kann.
+- PNG-Kamera-Aufnahmen und Galerie-Uploads werden asynchron verarbeitet; die Kamera bleibt dabei sofort bedienbar.
+
 ## 0.1.22 - 2026-06-20
 - Kamera-Aufnahmen werden nun als PNG exportiert, damit sie ohne JPEG-Kompression gespeichert werden.
 - Galerie-Uploads bleiben unveraendert und verwenden weiterhin die Originaldatei.

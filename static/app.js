@@ -4,11 +4,13 @@ const captureBtn = document.getElementById("captureBtn");
 const switchCameraBtn = document.getElementById("switchCameraBtn");
 const fallbackUploadBtn = document.getElementById("fallbackUploadBtn");
 const fallbackFileInput = document.getElementById("fallbackFileInput");
+const uploadBannerEl = document.getElementById("uploadBanner");
 const statusToastEl = document.getElementById("statusToast");
 
 let stream = null;
 let facingMode = "environment";
 let toastHideTimeoutId = null;
+let pendingUploads = 0;
 
 function hasLiveCameraApi() {
   return Boolean(
@@ -125,6 +127,24 @@ function setFallbackVisible(visible) {
   fallbackUploadBtn.hidden = !visible;
 }
 
+function updateUploadBanner() {
+  if (!uploadBannerEl) {
+    return;
+  }
+
+  if (pendingUploads <= 0) {
+    uploadBannerEl.hidden = true;
+    uploadBannerEl.textContent = "";
+    return;
+  }
+
+  uploadBannerEl.hidden = false;
+  uploadBannerEl.textContent =
+    pendingUploads === 1
+      ? "1 Bild wird noch hochgeladen. Bitte die Seite nicht schliessen."
+      : `${pendingUploads} Bilder werden noch hochgeladen. Bitte die Seite nicht schliessen.`;
+}
+
 function stopStream() {
   if (!stream) {
     return;
@@ -198,6 +218,24 @@ async function uploadImage(imageDataUrl) {
   return result.filename;
 }
 
+function uploadImageInBackground(imageDataUrl, onSuccess) {
+  pendingUploads += 1;
+  updateUploadBanner();
+
+  void (async () => {
+    try {
+      const filename = await uploadImage(imageDataUrl);
+      onSuccess(filename);
+    } catch (error) {
+      console.error(error);
+      setStatus(error.message || "Upload fehlgeschlagen.", "error");
+    } finally {
+      pendingUploads = Math.max(0, pendingUploads - 1);
+      updateUploadBanner();
+    }
+  })();
+}
+
 async function capturePhoto() {
   if (!stream) {
     setStatus("Keine aktive Kamera.", "error");
@@ -220,29 +258,26 @@ async function capturePhoto() {
 
   // PNG preserves the canvas pixels without JPEG compression.
   const imageDataUrl = canvas.toDataURL("image/png");
-  setStatus("Foto wird gespeichert...");
-
-  try {
-    const filename = await uploadImage(imageDataUrl);
+  setStatus("Foto aufgenommen. Upload laeuft im Hintergrund...");
+  uploadImageInBackground(imageDataUrl, (filename) => {
     setStatus(`Gespeichert als ${filename}`, "ok", {
       actionLabel: "💾 Speichern",
       actionHandler: () => downloadImage(imageDataUrl, filename),
     });
-  } catch (error) {
-    console.error(error);
-    setStatus(error.message, "error");
-  }
+  });
 }
 
 async function uploadSelectedFile(file) {
-  setStatus("Foto wird gespeichert...");
+  setStatus("Foto wird gelesen...");
 
   try {
     const imageDataUrl = await fileToDataUrl(file);
-    const filename = await uploadImage(imageDataUrl);
-    setStatus(`Gespeichert als ${filename}`, "ok", {
-      actionLabel: "💾 Speichern",
-      actionHandler: () => downloadImage(imageDataUrl, filename),
+    setStatus("Foto geladen. Upload laeuft im Hintergrund...");
+    uploadImageInBackground(imageDataUrl, (filename) => {
+      setStatus(`Gespeichert als ${filename}`, "ok", {
+        actionLabel: "💾 Speichern",
+        actionHandler: () => downloadImage(imageDataUrl, filename),
+      });
     });
   } catch (error) {
     console.error(error);
@@ -275,6 +310,15 @@ fallbackFileInput.addEventListener("change", async (event) => {
 
 window.addEventListener("beforeunload", () => {
   stopStream();
+});
+
+window.addEventListener("beforeunload", (event) => {
+  if (pendingUploads <= 0) {
+    return;
+  }
+
+  event.preventDefault();
+  event.returnValue = "";
 });
 
 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {

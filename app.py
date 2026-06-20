@@ -10,10 +10,11 @@ from threading import Lock
 from time import monotonic
 from uuid import uuid4
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, send_from_directory
 
 BASE_DIR = Path(__file__).resolve().parent
 UPLOAD_DIR = BASE_DIR / "uploads"
+IMG_DIR = BASE_DIR / "img"
 VERSION_FILE = BASE_DIR / "VERSION"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -71,6 +72,11 @@ def index():
 @app.get("/healthz")
 def healthz():
     return jsonify({"ok": True}), 200
+
+
+@app.get("/img/<path:filename>")
+def image_asset(filename: str):
+    return send_from_directory(IMG_DIR, filename)
 
 
 @app.errorhandler(413)

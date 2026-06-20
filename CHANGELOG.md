@@ -1,5 +1,56 @@
 # Changelog
 
+## 0.1.51 - 2026-06-20
+- Vertikale Zentrierung im Intro-Bereich weiter verstaerkt: hoehere, viewport-relative Intro-Hoehe und mittige Grid-Ausrichtung.
+- Mobile Intro-Hoehe ebenfalls angepasst, damit die Zentrierung dort klar sichtbar bleibt.
+
+## 0.1.50 - 2026-06-20
+- Vertikale Zentrierung des Intro-Textes robuster umgesetzt: Intro-Bereich nutzt jetzt den verfuegbaren Raum innerhalb der Karte.
+- `camera-card` auf Flex-Layout umgestellt, damit der Textbereich sichtbar mittig sitzt.
+
+## 0.1.49 - 2026-06-20
+- Anleitungstext im Intro-Bereich zusaetzlich vertikal zentriert.
+- Intro-Absatzbreite begrenzt, damit die zentrierte Darstellung ruhiger und lesbarer bleibt.
+
+## 0.1.48 - 2026-06-20
+- Ueberschrift "Foto-Quiz" erneut vergroessert (Desktop und Mobil), damit sie deutlich praesenter ist.
+
+## 0.1.47 - 2026-06-20
+- Rahmen am `quiz.png`-Bild entfernt, damit das Bild ohne Rand dargestellt wird.
+
+## 0.1.46 - 2026-06-20
+- Titel-, Anleitungs- und Upload-Banner-Text zentriert.
+- Eigene Kasten-Optik fuer Unterbereiche entfernt, damit nur noch die Hauptkarte als gemeinsamer Rahmen wirkt.
+
+## 0.1.45 - 2026-06-20
+- Gesamte Typografie vergroessert: Basistext, Intro-Text, Upload-Banner, Toast und Button-Beschriftungen.
+- Button-Hoehe leicht erhoeht, damit die groessere Schrift sauber und gut lesbar bleibt.
+
+## 0.1.44 - 2026-06-20
+- Button-Leiste auf `fixed` umgestellt und direkt an den unteren Bildschirmrand gepinnt.
+- Safe-Area-Beruecksichtigung und zusaetzlicher Karten-Innenabstand hinzugefuegt, damit Inhalte nicht von der Leiste ueberdeckt werden.
+
+## 0.1.43 - 2026-06-20
+- Ueberschrift, `quiz.png` und Anleitungstext in dieselbe Karte wie die Buttons verschoben.
+- Oberer Inhaltsbereich nutzt jetzt dasselbe Rechteck wie die Steuer-Buttons (ein gemeinsamer Karten-Container).
+
+## 0.1.42 - 2026-06-20
+- Ueberschrift "Foto-Quiz" deutlich vergroessert.
+- Gewuenschten Anleitungstext unter dem `quiz.png`-Bild eingefuegt.
+- Mobile Layout feinjustiert, damit Titel, Bild, Text und Kartenbereich gemeinsam sichtbar bleiben.
+
+## 0.1.41 - 2026-06-20
+- `quiz.png` als sichtbares Hero-Bild unter der Ueberschrift in die Startseite eingebunden.
+- Backend-Route fuer den Ordner `img/` hinzugefuegt, damit Bild-Assets stabil ausgeliefert werden.
+
+## 0.1.40 - 2026-06-20
+- Button-Leiste im Kamerabereich an den unteren Rand gepinnt.
+- Steuer-Buttons bleiben damit sichtbar und unten verankert, auch bei variierender Viewport-Hoehe.
+
+## 0.1.39 - 2026-06-20
+- Neue Ueberschrift "Foto-Quiz" im oberen Bereich hinzugefuegt, damit der freie Platz genutzt wird.
+- Titel-Layout fuer Desktop und Mobilansicht passend gestylt.
+
 ## 0.1.38 - 2026-06-20
 - Upload-Groessenlimit fuer den Server auf 80 MB angehoben, damit grosse PNG-Dateien nicht mehr vorzeitig abgewiesen werden.
 - Bei zu grossen Payloads gibt der Server jetzt eine klare JSON-Fehlermeldung (HTTP 413) zurueck.

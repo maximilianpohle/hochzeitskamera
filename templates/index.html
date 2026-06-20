@@ -9,6 +9,14 @@
   <body>
     <main class="app-shell">
       <section class="camera-card">
+        <h1 class="app-title">Foto-Quiz</h1>
+        <img class="quiz-hero" src="{{ url_for('image_asset', filename='quiz.png') }}" alt="Foto-Quiz" />
+        <section class="quiz-intro" aria-label="Anleitung">
+          <p>Macht fleißig Fotos und haltet all die besonderen Momente dieses Tages fest!</p>
+          <p>Begebt euch auf Entdeckungstour: Findet die Gäste, auf die die beiliegenden Beschreibungen zutreffen, und macht ein schönes (oder lustiges) Foto mit ihnen.</p>
+          <p>Wir freuen uns schon riesig auf eure Schnappschüsse. </p>
+          <p>Viel Spaß!</p>
+        </section>
         <div id="uploadBanner" class="upload-banner" hidden></div>
         <video id="preview" autoplay playsinline muted></video>
         <canvas id="snapshot" hidden></canvas>

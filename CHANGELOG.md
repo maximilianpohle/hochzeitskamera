@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.36 - 2026-06-20
+- Kamera-Aufloesungs-Optimierung bricht nicht mehr still ab: bei fehlenden Capabilities oder fehlgeschlagenem Setzen wird ein Fallback genutzt.
+- Statt Abbruch wird ein sichtbarer Warnhinweis angezeigt, waehrend die Kamera normal weiterlaeuft.
+
+## 0.1.35 - 2026-06-20
+- Live-Kamera fragt nicht mehr Full-HD als Ziel an, sondern versucht die maximal verfuegbare Video-Track-Aufloesung des Geraets zu nutzen.
+- Nach dem Start werden die Kamera-Capabilities ausgewertet und auf die hoechstmoegliche Aufloesung angehoben, falls der Browser das erlaubt.
+
 ## 0.1.34 - 2026-06-20
 - Upload-Banner wieder eingebaut, damit laufende Uploads sichtbar bleiben.
 - Banner reagiert auf den Hintergrund-Upload-Zaehler und verschwindet automatisch, wenn alles fertig ist.

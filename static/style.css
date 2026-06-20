@@ -150,6 +150,11 @@ button:disabled {
   color: #2f5d4c;
 }
 
+.toast.warn {
+  border-color: #b8c89d;
+  color: #4f5d2a;
+}
+
 .app-version {
   position: fixed;
   right: max(0.55rem, env(safe-area-inset-right));

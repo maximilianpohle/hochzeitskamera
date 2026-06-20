@@ -241,6 +241,44 @@ function stopStream() {
   stream = null;
 }
 
+async function maximizeVideoTrackResolution(activeStream) {
+  const videoTrack = activeStream && activeStream.getVideoTracks && activeStream.getVideoTracks()[0];
+  if (!videoTrack) {
+    return { fallbackUsed: true, reason: "Kein Video-Track verfuegbar." };
+  }
+
+  if (
+    typeof videoTrack.getCapabilities !== "function" ||
+    typeof videoTrack.applyConstraints !== "function"
+  ) {
+    return { fallbackUsed: true, reason: "Browser unterstuetzt keine Aufloesungs-Capabilities." };
+  }
+
+  const capabilities = videoTrack.getCapabilities();
+  const maxWidth = capabilities.width && typeof capabilities.width.max === "number" ? capabilities.width.max : null;
+  const maxHeight = capabilities.height && typeof capabilities.height.max === "number" ? capabilities.height.max : null;
+
+  if (!maxWidth && !maxHeight) {
+    return { fallbackUsed: true, reason: "Maximale Kamera-Aufloesung konnte nicht ausgelesen werden." };
+  }
+
+  const constraints = {};
+  if (maxWidth) {
+    constraints.width = { ideal: maxWidth };
+  }
+  if (maxHeight) {
+    constraints.height = { ideal: maxHeight };
+  }
+
+  try {
+    await videoTrack.applyConstraints(constraints);
+    return { fallbackUsed: false, reason: null };
+  } catch (error) {
+    console.warn("Maximale Aufloesung konnte nicht gesetzt werden:", error);
+    return { fallbackUsed: true, reason: "Maximale Kamera-Aufloesung konnte nicht gesetzt werden." };
+  }
+}
+
 async function startCamera() {
   try {
     stopStream();
@@ -249,17 +287,24 @@ async function startCamera() {
       audio: false,
       video: {
         facingMode: { ideal: facingMode },
-        width: { ideal: 1920 },
-        height: { ideal: 1080 },
       },
     };
 
     stream = await navigator.mediaDevices.getUserMedia(constraints);
+    const resolutionResult = await maximizeVideoTrackResolution(stream);
     video.srcObject = stream;
     await video.play();
     setLiveCameraControlsEnabled(true);
     setFallbackVisible(true);
-    setStatus(`Kamera aktiv (${facingMode === "user" ? "Front" : "Rück"}).`, "ok");
+
+    if (resolutionResult && resolutionResult.fallbackUsed) {
+      setStatus(
+        `Kamera aktiv (${facingMode === "user" ? "Front" : "Rück"}). Fallback aktiv: ${resolutionResult.reason}`,
+        "warn",
+      );
+    } else {
+      setStatus(`Kamera aktiv (${facingMode === "user" ? "Front" : "Rück"}).`, "ok");
+    }
   } catch (error) {
     console.error(error);
     setLiveCameraControlsEnabled(false);

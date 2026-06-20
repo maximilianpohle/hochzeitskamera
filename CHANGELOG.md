@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.29 - 2026-06-20
+- Galerie-Uploads werden jetzt direkt als Blob geladen statt zuerst als Data-URL, um "load failed" bei iPhone-Dateien zu vermeiden.
+- JPEG- und PNG-Varianten bleiben erhalten; die Konvertierung nutzt nun den robusteren Ladepfad.
+
 ## 0.1.28 - 2026-06-20
 - Pro Bild werden jetzt zwei Uploads erzeugt: ein kleineres JPEG mit hoher Qualitaet und eine unkomprimierte PNG-Version.
 - Kamera- und Galerie-Bilder werden dafuer zuerst in gemeinsame Bildvarianten umgerechnet und dann parallel hochgeladen.

@@ -134,6 +134,26 @@ function waitForImageLoad(imageElement, sourceUrl) {
   });
 }
 
+async function loadImageElement(source) {
+  const imageElement = new Image();
+  imageElement.decoding = "async";
+
+  if (source instanceof Blob) {
+    const objectUrl = URL.createObjectURL(source);
+
+    try {
+      await waitForImageLoad(imageElement, objectUrl);
+    } finally {
+      URL.revokeObjectURL(objectUrl);
+    }
+
+    return imageElement;
+  }
+
+  await waitForImageLoad(imageElement, source);
+  return imageElement;
+}
+
 function drawScaledImageToCanvas(imageElement, targetCanvas, maxWidth, maxHeight) {
   const sourceWidth = imageElement.naturalWidth || imageElement.width;
   const sourceHeight = imageElement.naturalHeight || imageElement.height;
@@ -153,10 +173,8 @@ function drawScaledImageToCanvas(imageElement, targetCanvas, maxWidth, maxHeight
   context.drawImage(imageElement, 0, 0, targetWidth, targetHeight);
 }
 
-async function createCaptureVariants(imageSourceUrl) {
-  const imageElement = new Image();
-  imageElement.decoding = "async";
-  await waitForImageLoad(imageElement, imageSourceUrl);
+async function createCaptureVariants(imageSource) {
+  const imageElement = await loadImageElement(imageSource);
 
   const jpegCanvas = document.createElement("canvas");
   const pngCanvas = document.createElement("canvas");
@@ -321,8 +339,7 @@ async function uploadSelectedFile(file) {
   setStatus("Foto wird gelesen...");
 
   try {
-    const imageDataUrl = await fileToDataUrl(file);
-    const variants = await createCaptureVariants(imageDataUrl);
+    const variants = await createCaptureVariants(file);
     setStatus("Foto geladen. Upload laeuft im Hintergrund...");
     uploadCaptureVariantsInBackground(variants, ({ jpegFilename, pngFilename }) => {
       setStatus(`Gespeichert als ${jpegFilename} und ${pngFilename}`, "ok", {

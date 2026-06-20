@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.1.34 - 2026-06-20
+- Upload-Banner wieder eingebaut, damit laufende Uploads sichtbar bleiben.
+- Banner reagiert auf den Hintergrund-Upload-Zaehler und verschwindet automatisch, wenn alles fertig ist.
+
+## 0.1.33 - 2026-06-20
+- PNG-Erzeugung wird erst nach erfolgreichem JPG-Upload gestartet, damit der schnelle JPG-Request nicht blockiert wird.
+- Das reduziert die Wartezeit bis zum ersten Upload weiter, vor allem bei grossen Bildern.
+
+## 0.1.32 - 2026-06-20
+- JPG-Upload wird jetzt vor PNG priorisiert, damit der kleine Upload moeglichst frueh startet.
+- Das Backend vergibt die capture_id beim ersten Upload und die PNG-Datei haengt sich daran an.
+
+## 0.1.31 - 2026-06-20
+- Upload-API auf einen Bundle-Upload umgestellt, damit JPG und PNG vom Backend gemeinsam eine ID bekommen.
+- Das Backend vergibt den Bildstamm jetzt selbst und schreibt beide Varianten mit derselben capture_id in einen gemeinsamen Dateistamm.
+
+## 0.1.30 - 2026-06-20
+- JPG und PNG bekommen jetzt denselben gemeinsamen Bild-Stamm ueber eine uploadseitige capture_id.
+- Die beiden Varianten unterscheiden sich nur noch in der Dateiendung, nicht mehr in der zufaelligen ID.
+
 ## 0.1.29 - 2026-06-20
 - Galerie-Uploads werden jetzt direkt als Blob geladen statt zuerst als Data-URL, um "load failed" bei iPhone-Dateien zu vermeiden.
 - JPEG- und PNG-Varianten bleiben erhalten; die Konvertierung nutzt nun den robusteren Ladepfad.

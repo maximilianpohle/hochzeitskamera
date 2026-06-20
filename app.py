@@ -88,10 +88,26 @@ def upload_photo():
         )
 
     payload = request.get_json(silent=True) or {}
+    extension_map = {
+        "image/jpeg": "jpg",
+        "image/jpg": "jpg",
+        "image/png": "png",
+        "image/webp": "webp",
+        "image/heic": "heic",
+        "image/heif": "heif",
+    }
     image_data = payload.get("image")
+    capture_id = payload.get("capture_id")
 
     if not image_data or not isinstance(image_data, str):
         return jsonify({"ok": False, "error": "Kein Bild erhalten."}), 400
+
+    if capture_id is None:
+        capture_id = uuid4().hex
+    else:
+        capture_id = str(capture_id).strip()
+        if not re.fullmatch(r"[a-zA-Z0-9_-]{8,64}", capture_id):
+            return jsonify({"ok": False, "error": "Ungültige Bild-ID."}), 400
 
     match = re.match(r"^data:(image/[a-zA-Z0-9.+-]+);base64,", image_data)
     if not match:
@@ -105,22 +121,12 @@ def upload_photo():
     except Exception:
         return jsonify({"ok": False, "error": "Bilddaten konnten nicht dekodiert werden."}), 400
 
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    extension_map = {
-        "image/jpeg": "jpg",
-        "image/jpg": "jpg",
-        "image/png": "png",
-        "image/webp": "webp",
-        "image/heic": "heic",
-        "image/heif": "heif",
-    }
     extension = extension_map.get(mime_type, "jpg")
-
-    filename = f"{timestamp}_{uuid4().hex[:8]}.{extension}"
+    filename = f"{capture_id}.{extension}"
     file_path = UPLOAD_DIR / filename
     file_path.write_bytes(raw)
 
-    return jsonify({"ok": True, "filename": filename})
+    return jsonify({"ok": True, "filename": filename, "capture_id": capture_id})
 
 
 if __name__ == "__main__":

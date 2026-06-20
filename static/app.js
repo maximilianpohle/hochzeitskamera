@@ -4,6 +4,7 @@ const captureBtn = document.getElementById("captureBtn");
 const switchCameraBtn = document.getElementById("switchCameraBtn");
 const fallbackUploadBtn = document.getElementById("fallbackUploadBtn");
 const fallbackFileInput = document.getElementById("fallbackFileInput");
+const uploadBannerEl = document.getElementById("uploadBanner");
 const statusToastEl = document.getElementById("statusToast");
 
 let stream = null;
@@ -126,6 +127,24 @@ function setFallbackVisible(visible) {
   fallbackUploadBtn.hidden = !visible;
 }
 
+function updateUploadBanner() {
+  if (!uploadBannerEl) {
+    return;
+  }
+
+  if (pendingUploads <= 0) {
+    uploadBannerEl.hidden = true;
+    uploadBannerEl.textContent = "";
+    return;
+  }
+
+  uploadBannerEl.hidden = false;
+  uploadBannerEl.textContent =
+    pendingUploads === 1
+      ? "1 Bild wird noch hochgeladen. Bitte die Seite offen lassen."
+      : `${pendingUploads} Bilder werden noch hochgeladen. Bitte die Seite offen lassen.`;
+}
+
 function waitForImageLoad(imageElement, sourceUrl) {
   return new Promise((resolve, reject) => {
     imageElement.onload = () => resolve();
@@ -154,9 +173,31 @@ async function loadImageElement(source) {
   return imageElement;
 }
 
-function drawScaledImageToCanvas(imageElement, targetCanvas, maxWidth, maxHeight) {
-  const sourceWidth = imageElement.naturalWidth || imageElement.width;
-  const sourceHeight = imageElement.naturalHeight || imageElement.height;
+function getSourceDimensions(source) {
+  const sourceWidth = source.naturalWidth || source.videoWidth || source.width;
+  const sourceHeight = source.naturalHeight || source.videoHeight || source.height;
+
+  return { sourceWidth, sourceHeight };
+}
+
+function createCanvasFromImageSource(source) {
+  const { sourceWidth, sourceHeight } = getSourceDimensions(source);
+
+  if (!sourceWidth || !sourceHeight) {
+    throw new Error("Bildabmessungen konnten nicht bestimmt werden.");
+  }
+
+  const sourceCanvas = document.createElement("canvas");
+  sourceCanvas.width = sourceWidth;
+  sourceCanvas.height = sourceHeight;
+
+  const context = sourceCanvas.getContext("2d");
+  context.drawImage(source, 0, 0, sourceWidth, sourceHeight);
+  return sourceCanvas;
+}
+
+function drawScaledCanvasToCanvas(sourceCanvas, targetCanvas, maxWidth, maxHeight) {
+  const { sourceWidth, sourceHeight } = getSourceDimensions(sourceCanvas);
 
   if (!sourceWidth || !sourceHeight) {
     throw new Error("Bildabmessungen konnten nicht bestimmt werden.");
@@ -170,25 +211,26 @@ function drawScaledImageToCanvas(imageElement, targetCanvas, maxWidth, maxHeight
   targetCanvas.height = targetHeight;
 
   const context = targetCanvas.getContext("2d");
-  context.drawImage(imageElement, 0, 0, targetWidth, targetHeight);
+  context.drawImage(sourceCanvas, 0, 0, targetWidth, targetHeight);
 }
 
-async function createCaptureVariants(imageSource) {
-  const imageElement = await loadImageElement(imageSource);
-
+function createJpegDataUrl(sourceCanvas) {
   const jpegCanvas = document.createElement("canvas");
-  const pngCanvas = document.createElement("canvas");
+  drawScaledCanvasToCanvas(sourceCanvas, jpegCanvas, 1600, 1600);
+  return jpegCanvas.toDataURL("image/jpeg", 0.98);
+}
 
-  drawScaledImageToCanvas(imageElement, jpegCanvas, 1600, 1600);
+function createPngDataUrl(sourceCanvas) {
+  return sourceCanvas.toDataURL("image/png");
+}
 
-  pngCanvas.width = imageElement.naturalWidth || imageElement.width;
-  pngCanvas.height = imageElement.naturalHeight || imageElement.height;
-  pngCanvas.getContext("2d").drawImage(imageElement, 0, 0, pngCanvas.width, pngCanvas.height);
+async function createCaptureSource(source) {
+  if (source instanceof HTMLCanvasElement) {
+    return source;
+  }
 
-  return {
-    jpegDataUrl: jpegCanvas.toDataURL("image/jpeg", 0.98),
-    pngDataUrl: pngCanvas.toDataURL("image/png"),
-  };
+  const imageElement = await loadImageElement(source);
+  return createCanvasFromImageSource(imageElement);
 }
 
 function stopStream() {
@@ -246,13 +288,13 @@ async function fileToDataUrl(file) {
   });
 }
 
-async function uploadImage(imageDataUrl) {
+async function uploadImage(imageDataUrl, captureId) {
   const response = await fetch("/upload", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ image: imageDataUrl }),
+    body: JSON.stringify({ image: imageDataUrl, capture_id: captureId }),
   });
 
   const result = await response.json();
@@ -261,42 +303,43 @@ async function uploadImage(imageDataUrl) {
     throw new Error(result.error || "Upload fehlgeschlagen.");
   }
 
-  return result.filename;
+  return result;
 }
 
-function uploadImageInBackground(imageDataUrl, onSuccess) {
+function uploadImageInBackground(imageDataUrl, captureId, onSuccess) {
   pendingUploads += 1;
+  updateUploadBanner();
 
   void (async () => {
     try {
-      const filename = await uploadImage(imageDataUrl);
-      onSuccess(filename);
+      const result = await uploadImage(imageDataUrl, captureId);
+      onSuccess(result);
     } catch (error) {
       console.error(error);
       setStatus(error.message || "Upload fehlgeschlagen.", "error");
     } finally {
       pendingUploads = Math.max(0, pendingUploads - 1);
+      updateUploadBanner();
     }
   })();
 }
 
-function uploadCaptureVariantsInBackground(variants, onSuccess) {
-  pendingUploads += 2;
+function uploadJpegThenPngInBackground(sourceCanvas) {
+  const jpegDataUrl = createJpegDataUrl(sourceCanvas);
 
-  void (async () => {
-    try {
-      const [jpegFilename, pngFilename] = await Promise.all([
-        uploadImage(variants.jpegDataUrl),
-        uploadImage(variants.pngDataUrl),
-      ]);
-      onSuccess({ jpegFilename, pngFilename });
-    } catch (error) {
-      console.error(error);
-      setStatus(error.message || "Upload fehlgeschlagen.", "error");
-    } finally {
-      pendingUploads = Math.max(0, pendingUploads - 2);
-    }
-  })();
+  setStatus("JPG wird hochgeladen...");
+
+  uploadImageInBackground(jpegDataUrl, undefined, (jpegResult) => {
+    const pngDataUrl = createPngDataUrl(sourceCanvas);
+    setStatus(`JPG gespeichert als ${jpegResult.filename}. PNG folgt...`, "ok");
+
+    uploadImageInBackground(pngDataUrl, jpegResult.capture_id, (pngResult) => {
+      setStatus(`Gespeichert als ${jpegResult.filename} und ${pngResult.filename}`, "ok", {
+        actionLabel: "💾 Speichern",
+        actionHandler: () => downloadImage(pngDataUrl, pngResult.filename),
+      });
+    });
+  });
 }
 
 async function capturePhoto() {
@@ -313,22 +356,14 @@ async function capturePhoto() {
     return;
   }
 
-  const context = canvas.getContext("2d");
   canvas.width = width;
   canvas.height = height;
+  const context = canvas.getContext("2d");
   context.drawImage(video, 0, 0, width, height);
 
-  const originalCaptureDataUrl = canvas.toDataURL("image/png");
-  setStatus("Foto aufgenommen. Upload laeuft im Hintergrund...");
-
   try {
-    const variants = await createCaptureVariants(originalCaptureDataUrl);
-    uploadCaptureVariantsInBackground(variants, ({ jpegFilename, pngFilename }) => {
-      setStatus(`Gespeichert als ${jpegFilename} und ${pngFilename}`, "ok", {
-        actionLabel: "💾 Speichern",
-        actionHandler: () => downloadImage(variants.pngDataUrl, pngFilename),
-      });
-    });
+    const sourceCanvas = await createCaptureSource(canvas);
+    uploadJpegThenPngInBackground(sourceCanvas);
   } catch (error) {
     console.error(error);
     setStatus(error.message || "Bild konnte nicht vorbereitet werden.", "error");
@@ -339,14 +374,9 @@ async function uploadSelectedFile(file) {
   setStatus("Foto wird gelesen...");
 
   try {
-    const variants = await createCaptureVariants(file);
-    setStatus("Foto geladen. Upload laeuft im Hintergrund...");
-    uploadCaptureVariantsInBackground(variants, ({ jpegFilename, pngFilename }) => {
-      setStatus(`Gespeichert als ${jpegFilename} und ${pngFilename}`, "ok", {
-        actionLabel: "💾 Speichern",
-        actionHandler: () => downloadImage(variants.pngDataUrl, pngFilename),
-      });
-    });
+    const sourceCanvas = await createCaptureSource(file);
+    setStatus("Foto geladen. JPG wird hochgeladen...");
+    uploadJpegThenPngInBackground(sourceCanvas);
   } catch (error) {
     console.error(error);
     setStatus(error.message || "Upload fehlgeschlagen.", "error");

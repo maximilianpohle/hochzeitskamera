@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.28 - 2026-06-20
+- Pro Bild werden jetzt zwei Uploads erzeugt: ein kleineres JPEG mit hoher Qualitaet und eine unkomprimierte PNG-Version.
+- Kamera- und Galerie-Bilder werden dafuer zuerst in gemeinsame Bildvarianten umgerechnet und dann parallel hochgeladen.
+
+## 0.1.27 - 2026-06-20
+- Upload-Statusbar/Banner wieder entfernt, damit die Oberfläche ruhiger bleibt.
+- Hintergrund-Uploads und die Warnung beim Verlassen der Seite bleiben weiterhin aktiv.
+
 ## 0.1.26 - 2026-06-20
 - Upload-Banner sprachlich entschärft, damit er nicht wie eine feste Reihenfolge wirkt.
 - Anzeige betont jetzt nur noch die noch laufenden Uploads im Hintergrund.

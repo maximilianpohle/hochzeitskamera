@@ -4,9 +4,6 @@ const captureBtn = document.getElementById("captureBtn");
 const switchCameraBtn = document.getElementById("switchCameraBtn");
 const fallbackUploadBtn = document.getElementById("fallbackUploadBtn");
 const fallbackFileInput = document.getElementById("fallbackFileInput");
-const uploadBannerEl = document.getElementById("uploadBanner");
-const uploadBannerTextEl = document.getElementById("uploadBannerText");
-const uploadBannerBarEl = document.getElementById("uploadBannerBar");
 const statusToastEl = document.getElementById("statusToast");
 
 let stream = null;
@@ -129,24 +126,51 @@ function setFallbackVisible(visible) {
   fallbackUploadBtn.hidden = !visible;
 }
 
-function updateUploadBanner() {
-  if (!uploadBannerEl || !uploadBannerTextEl || !uploadBannerBarEl) {
-    return;
+function waitForImageLoad(imageElement, sourceUrl) {
+  return new Promise((resolve, reject) => {
+    imageElement.onload = () => resolve();
+    imageElement.onerror = () => reject(new Error("Bild konnte nicht geladen werden."));
+    imageElement.src = sourceUrl;
+  });
+}
+
+function drawScaledImageToCanvas(imageElement, targetCanvas, maxWidth, maxHeight) {
+  const sourceWidth = imageElement.naturalWidth || imageElement.width;
+  const sourceHeight = imageElement.naturalHeight || imageElement.height;
+
+  if (!sourceWidth || !sourceHeight) {
+    throw new Error("Bildabmessungen konnten nicht bestimmt werden.");
   }
 
-  if (pendingUploads <= 0) {
-    uploadBannerEl.hidden = true;
-    uploadBannerTextEl.textContent = "";
-    uploadBannerBarEl.style.transform = "translateX(-45%)";
-    return;
-  }
+  const scale = Math.min(1, maxWidth / sourceWidth, maxHeight / sourceHeight);
+  const targetWidth = Math.max(1, Math.round(sourceWidth * scale));
+  const targetHeight = Math.max(1, Math.round(sourceHeight * scale));
 
-  uploadBannerEl.hidden = false;
-  uploadBannerTextEl.textContent =
-    pendingUploads === 1
-      ? "1 Upload laeuft noch im Hintergrund. Bitte die Seite nicht schliessen."
-      : `${pendingUploads} Uploads laufen noch im Hintergrund. Bitte die Seite nicht schliessen.`;
-  uploadBannerBarEl.style.transform = "translateX(-45%)";
+  targetCanvas.width = targetWidth;
+  targetCanvas.height = targetHeight;
+
+  const context = targetCanvas.getContext("2d");
+  context.drawImage(imageElement, 0, 0, targetWidth, targetHeight);
+}
+
+async function createCaptureVariants(imageSourceUrl) {
+  const imageElement = new Image();
+  imageElement.decoding = "async";
+  await waitForImageLoad(imageElement, imageSourceUrl);
+
+  const jpegCanvas = document.createElement("canvas");
+  const pngCanvas = document.createElement("canvas");
+
+  drawScaledImageToCanvas(imageElement, jpegCanvas, 1600, 1600);
+
+  pngCanvas.width = imageElement.naturalWidth || imageElement.width;
+  pngCanvas.height = imageElement.naturalHeight || imageElement.height;
+  pngCanvas.getContext("2d").drawImage(imageElement, 0, 0, pngCanvas.width, pngCanvas.height);
+
+  return {
+    jpegDataUrl: jpegCanvas.toDataURL("image/jpeg", 0.98),
+    pngDataUrl: pngCanvas.toDataURL("image/png"),
+  };
 }
 
 function stopStream() {
@@ -224,7 +248,6 @@ async function uploadImage(imageDataUrl) {
 
 function uploadImageInBackground(imageDataUrl, onSuccess) {
   pendingUploads += 1;
-  updateUploadBanner();
 
   void (async () => {
     try {
@@ -235,7 +258,25 @@ function uploadImageInBackground(imageDataUrl, onSuccess) {
       setStatus(error.message || "Upload fehlgeschlagen.", "error");
     } finally {
       pendingUploads = Math.max(0, pendingUploads - 1);
-      updateUploadBanner();
+    }
+  })();
+}
+
+function uploadCaptureVariantsInBackground(variants, onSuccess) {
+  pendingUploads += 2;
+
+  void (async () => {
+    try {
+      const [jpegFilename, pngFilename] = await Promise.all([
+        uploadImage(variants.jpegDataUrl),
+        uploadImage(variants.pngDataUrl),
+      ]);
+      onSuccess({ jpegFilename, pngFilename });
+    } catch (error) {
+      console.error(error);
+      setStatus(error.message || "Upload fehlgeschlagen.", "error");
+    } finally {
+      pendingUploads = Math.max(0, pendingUploads - 2);
     }
   })();
 }
@@ -254,21 +295,26 @@ async function capturePhoto() {
     return;
   }
 
+  const context = canvas.getContext("2d");
   canvas.width = width;
   canvas.height = height;
-
-  const context = canvas.getContext("2d");
   context.drawImage(video, 0, 0, width, height);
 
-  // PNG preserves the canvas pixels without JPEG compression.
-  const imageDataUrl = canvas.toDataURL("image/png");
+  const originalCaptureDataUrl = canvas.toDataURL("image/png");
   setStatus("Foto aufgenommen. Upload laeuft im Hintergrund...");
-  uploadImageInBackground(imageDataUrl, (filename) => {
-    setStatus(`Gespeichert als ${filename}`, "ok", {
-      actionLabel: "💾 Speichern",
-      actionHandler: () => downloadImage(imageDataUrl, filename),
+
+  try {
+    const variants = await createCaptureVariants(originalCaptureDataUrl);
+    uploadCaptureVariantsInBackground(variants, ({ jpegFilename, pngFilename }) => {
+      setStatus(`Gespeichert als ${jpegFilename} und ${pngFilename}`, "ok", {
+        actionLabel: "💾 Speichern",
+        actionHandler: () => downloadImage(variants.pngDataUrl, pngFilename),
+      });
     });
-  });
+  } catch (error) {
+    console.error(error);
+    setStatus(error.message || "Bild konnte nicht vorbereitet werden.", "error");
+  }
 }
 
 async function uploadSelectedFile(file) {
@@ -276,11 +322,12 @@ async function uploadSelectedFile(file) {
 
   try {
     const imageDataUrl = await fileToDataUrl(file);
+    const variants = await createCaptureVariants(imageDataUrl);
     setStatus("Foto geladen. Upload laeuft im Hintergrund...");
-    uploadImageInBackground(imageDataUrl, (filename) => {
-      setStatus(`Gespeichert als ${filename}`, "ok", {
+    uploadCaptureVariantsInBackground(variants, ({ jpegFilename, pngFilename }) => {
+      setStatus(`Gespeichert als ${jpegFilename} und ${pngFilename}`, "ok", {
         actionLabel: "💾 Speichern",
-        actionHandler: () => downloadImage(imageDataUrl, filename),
+        actionHandler: () => downloadImage(variants.pngDataUrl, pngFilename),
       });
     });
   } catch (error) {

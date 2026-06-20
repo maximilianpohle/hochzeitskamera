@@ -36,37 +36,6 @@ body {
   box-shadow: 0 16px 40px rgba(40, 78, 64, 0.14);
 }
 
-.upload-banner {
-  display: grid;
-  gap: 0.5rem;
-  margin-bottom: 0.7rem;
-  border-radius: 0.85rem;
-  border: 1px solid #9bc0b0;
-  background: linear-gradient(135deg, #f3fbf7, #e3f1ea);
-  color: #1b4a3b;
-  font-weight: 700;
-  padding: 0.7rem 0.85rem;
-}
-
-.upload-banner-text {
-  line-height: 1.25;
-}
-
-.upload-banner-track {
-  overflow: hidden;
-  border-radius: 999px;
-  background: rgba(95, 143, 122, 0.14);
-  height: 0.42rem;
-}
-
-.upload-banner-bar {
-  width: 38%;
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, var(--accent), #8ab99f, var(--accent));
-  animation: upload-banner-pulse 1.1s ease-in-out infinite;
-}
-
 #preview {
   width: 100%;
   border-radius: 0.9rem;
@@ -171,20 +140,6 @@ button:disabled {
   color: #2f5d4c;
 }
 
-@keyframes upload-banner-pulse {
-  0% {
-    transform: translateX(-45%);
-  }
-
-  50% {
-    transform: translateX(145%);
-  }
-
-  100% {
-    transform: translateX(-45%);
-  }
-}
-
 .app-version {
   position: fixed;
   right: max(0.55rem, env(safe-area-inset-right));
@@ -214,10 +169,6 @@ button:disabled {
     display: flex;
     flex-direction: column;
     padding: 0.5rem;
-  }
-
-  .upload-banner {
-    margin-bottom: 0.55rem;
   }
 
   #preview {

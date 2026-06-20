@@ -2,6 +2,7 @@ const video = document.getElementById("preview");
 const canvas = document.getElementById("snapshot");
 const captureBtn = document.getElementById("captureBtn");
 const switchCameraBtn = document.getElementById("switchCameraBtn");
+const cameraFileInput = document.getElementById("cameraFileInput");
 const fallbackUploadBtn = document.getElementById("fallbackUploadBtn");
 const fallbackFileInput = document.getElementById("fallbackFileInput");
 const uploadBannerEl = document.getElementById("uploadBanner");
@@ -388,31 +389,13 @@ function uploadJpegThenPngInBackground(sourceCanvas) {
 }
 
 async function capturePhoto() {
-  if (!stream) {
-    setStatus("Keine aktive Kamera.", "error");
+  if (!cameraFileInput) {
+    setStatus("Kamera-App steht nicht zur Verfuegung.", "error");
     return;
   }
 
-  const width = video.videoWidth;
-  const height = video.videoHeight;
-
-  if (!width || !height) {
-    setStatus("Kamerabild ist noch nicht bereit.", "error");
-    return;
-  }
-
-  canvas.width = width;
-  canvas.height = height;
-  const context = canvas.getContext("2d");
-  context.drawImage(video, 0, 0, width, height);
-
-  try {
-    const sourceCanvas = await createCaptureSource(canvas);
-    uploadJpegThenPngInBackground(sourceCanvas);
-  } catch (error) {
-    console.error(error);
-    setStatus(error.message || "Bild konnte nicht vorbereitet werden.", "error");
-  }
+  setStatus("Kamera-App wird geoeffnet...");
+  cameraFileInput.click();
 }
 
 async function uploadSelectedFile(file) {
@@ -441,6 +424,16 @@ fallbackUploadBtn.addEventListener("click", () => {
   fallbackFileInput.click();
 });
 
+cameraFileInput.addEventListener("change", async (event) => {
+  const selectedFile = event.target.files && event.target.files[0];
+  if (!selectedFile) {
+    return;
+  }
+
+  await uploadSelectedFile(selectedFile);
+  cameraFileInput.value = "";
+});
+
 fallbackFileInput.addEventListener("change", async (event) => {
   const selectedFile = event.target.files && event.target.files[0];
   if (!selectedFile) {
@@ -465,15 +458,13 @@ window.addEventListener("beforeunload", (event) => {
 });
 
 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-  setLiveCameraControlsEnabled(false);
   setFallbackVisible(true);
-
-  if (!window.isSecureContext) {
-    setStatus("Auf iPhone/Brave ist Live-Kamera nur mit HTTPS oder localhost verfuegbar. Nutze den Fallback-Button oder HTTPS.", "error");
-  } else {
-    setStatus("Browser unterstützt keine Live-Kamera-API. Nutze den Foto-Upload-Button.", "error");
-  }
+  switchCameraBtn.hidden = true;
+  video.hidden = true;
+  setStatus("Kamera-App-Modus aktiv. 'Foto aufnehmen' nutzt die native Kamera-App.", "ok");
 } else {
+  switchCameraBtn.hidden = true;
+  video.hidden = true;
   setFallbackVisible(true);
-  startCamera();
+  setStatus("Kamera-App-Modus aktiv. 'Foto aufnehmen' nutzt die native Kamera-App.", "ok");
 }

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.37 - 2026-06-20
+- Aufnehmen-Button auf nativen Kamera-App-Modus umgestellt: statt Live-Video wird immer die Kamera-App geoeffnet.
+- Live-Preview und Front/Rueckkamera-Schalter werden in diesem Modus ausgeblendet, um unscharfe Video-Frame-Aufnahmen zu vermeiden.
+
 ## 0.1.36 - 2026-06-20
 - Kamera-Aufloesungs-Optimierung bricht nicht mehr still ab: bei fehlenden Capabilities oder fehlgeschlagenem Setzen wird ein Fallback genutzt.
 - Statt Abbruch wird ein sichtbarer Warnhinweis angezeigt, waehrend die Kamera normal weiterlaeuft.

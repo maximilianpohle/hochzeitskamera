@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.56 - 2026-06-21
+- Intro-Textbereich als Scrollflaeche umgesetzt (`overflow-y: auto`), damit laengerer Text nicht hinter die Buttons laeuft.
+- Kartenlayout mit `min-height: 0` stabilisiert, damit der scrollbare Textbereich auf kleinen Displays korrekt funktioniert.
+
+## 0.1.55 - 2026-06-21
+- Intro-Text wieder klar horizontal zentriert: Absatzbloecke mittig ausgerichtet und Textausrichtung explizit auf zentriert gesetzt.
+
+## 0.1.54 - 2026-06-21
+- Layout korrigiert: Button-Leiste ist wieder Teil des Karten-Containers (nicht mehr fix am Viewport).
+- Intro-Textfluss beruhigt (keine erzwungene Vertikal-Zentrierung), damit Text und Bild nicht mehr ueberlappend wirken.
+
 ## 0.1.53 - 2026-06-21
 - Anleitungstext im Foto-Quiz praezisiert: Seite nach jedem Foto offen lassen, bis die Speicher-Meldung erscheint.
 - Hinweis ergaenzt, dass bei laufenden Uploads nicht geschlossen oder neu geladen werden soll, bis die Speicherung bestaetigt ist.

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.52 - 2026-06-21
+- Speicherprobleme auf manchen Android-Geraeten reduziert: sehr grosse Bilder werden vor der Konvertierung automatisch auf ein sicheres Verarbeitungs-Limit skaliert.
+- Upload-Pipeline auf async/await umgestellt und Canvas-Speicher nach JPG/PNG-Upload explizit freigegeben, um OOM-Fehler wie "zu wenig speicher fuer vorherige operation" zu vermeiden.
+
 ## 0.1.51 - 2026-06-20
 - Vertikale Zentrierung im Intro-Bereich weiter verstaerkt: hoehere, viewport-relative Intro-Hoehe und mittige Grid-Ausrichtung.
 - Mobile Intro-Hoehe ebenfalls angepasst, damit die Zentrierung dort klar sichtbar bleibt.

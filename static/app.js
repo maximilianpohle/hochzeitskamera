@@ -13,6 +13,9 @@ let facingMode = "environment";
 let toastHideTimeoutId = null;
 let pendingUploads = 0;
 
+const MAX_PROCESSING_PIXELS = 12_000_000;
+const MAX_PROCESSING_EDGE = 4096;
+
 function hasLiveCameraApi() {
   return Boolean(
     window.isSecureContext &&
@@ -181,6 +184,30 @@ function getSourceDimensions(source) {
   return { sourceWidth, sourceHeight };
 }
 
+function getMemorySafeDimensions(sourceWidth, sourceHeight) {
+  const maxEdge = Math.max(sourceWidth, sourceHeight);
+  const pixelCount = sourceWidth * sourceHeight;
+
+  let scale = 1;
+
+  if (maxEdge > MAX_PROCESSING_EDGE) {
+    scale = Math.min(scale, MAX_PROCESSING_EDGE / maxEdge);
+  }
+
+  if (pixelCount > MAX_PROCESSING_PIXELS) {
+    scale = Math.min(scale, Math.sqrt(MAX_PROCESSING_PIXELS / pixelCount));
+  }
+
+  const targetWidth = Math.max(1, Math.round(sourceWidth * scale));
+  const targetHeight = Math.max(1, Math.round(sourceHeight * scale));
+
+  return {
+    targetWidth,
+    targetHeight,
+    wasReduced: targetWidth !== sourceWidth || targetHeight !== sourceHeight,
+  };
+}
+
 function createCanvasFromImageSource(source) {
   const { sourceWidth, sourceHeight } = getSourceDimensions(source);
 
@@ -188,13 +215,29 @@ function createCanvasFromImageSource(source) {
     throw new Error("Bildabmessungen konnten nicht bestimmt werden.");
   }
 
+  const { targetWidth, targetHeight, wasReduced } = getMemorySafeDimensions(
+    sourceWidth,
+    sourceHeight,
+  );
+
   const sourceCanvas = document.createElement("canvas");
-  sourceCanvas.width = sourceWidth;
-  sourceCanvas.height = sourceHeight;
+  sourceCanvas.width = targetWidth;
+  sourceCanvas.height = targetHeight;
 
   const context = sourceCanvas.getContext("2d");
-  context.drawImage(source, 0, 0, sourceWidth, sourceHeight);
+  context.drawImage(source, 0, 0, targetWidth, targetHeight);
+  sourceCanvas.__wasDownscaledForMemory = wasReduced;
   return sourceCanvas;
+}
+
+function releaseCanvasMemory(canvasElement) {
+  if (!canvasElement) {
+    return;
+  }
+
+  // Shrinking the canvas releases the large backing store on mobile browsers.
+  canvasElement.width = 1;
+  canvasElement.height = 1;
 }
 
 function drawScaledCanvasToCanvas(sourceCanvas, targetCanvas, maxWidth, maxHeight) {
@@ -365,40 +408,43 @@ async function uploadImage(imageDataUrl, captureId) {
   return result;
 }
 
-function uploadImageInBackground(imageDataUrl, captureId, onSuccess) {
+async function uploadImageInBackground(imageDataUrl, captureId) {
   pendingUploads += 1;
   updateUploadBanner();
 
-  void (async () => {
-    try {
-      const result = await uploadImage(imageDataUrl, captureId);
-      onSuccess(result);
-    } catch (error) {
-      console.error(error);
-      setStatus(error.message || "Upload fehlgeschlagen.", "error");
-    } finally {
-      pendingUploads = Math.max(0, pendingUploads - 1);
-      updateUploadBanner();
-    }
-  })();
+  try {
+    return await uploadImage(imageDataUrl, captureId);
+  } catch (error) {
+    console.error(error);
+    setStatus(error.message || "Upload fehlgeschlagen.", "error");
+    throw error;
+  } finally {
+    pendingUploads = Math.max(0, pendingUploads - 1);
+    updateUploadBanner();
+  }
 }
 
 function uploadJpegThenPngInBackground(sourceCanvas) {
-  const jpegDataUrl = createJpegDataUrl(sourceCanvas);
+  void (async () => {
+    try {
+      const jpegDataUrl = createJpegDataUrl(sourceCanvas);
+      setStatus("JPG wird hochgeladen...");
+      const jpegResult = await uploadImageInBackground(jpegDataUrl, undefined);
 
-  setStatus("JPG wird hochgeladen...");
+      const pngDataUrl = createPngDataUrl(sourceCanvas);
+      setStatus(`JPG gespeichert als ${jpegResult.filename}. PNG folgt...`, "ok");
+      const pngResult = await uploadImageInBackground(pngDataUrl, jpegResult.capture_id);
 
-  uploadImageInBackground(jpegDataUrl, undefined, (jpegResult) => {
-    const pngDataUrl = createPngDataUrl(sourceCanvas);
-    setStatus(`JPG gespeichert als ${jpegResult.filename}. PNG folgt...`, "ok");
-
-    uploadImageInBackground(pngDataUrl, jpegResult.capture_id, (pngResult) => {
       setStatus(`Gespeichert als ${jpegResult.filename} und ${pngResult.filename}`, "ok", {
         actionLabel: "💾 Speichern",
         actionHandler: () => downloadImage(pngDataUrl, pngResult.filename),
       });
-    });
-  });
+    } catch {
+      // Errors are already handled and surfaced in uploadImageInBackground.
+    } finally {
+      releaseCanvasMemory(sourceCanvas);
+    }
+  })();
 }
 
 async function capturePhoto() {
@@ -416,7 +462,16 @@ async function uploadSelectedFile(file) {
 
   try {
     const sourceCanvas = await createCaptureSource(file);
-    setStatus("Foto geladen. JPG wird hochgeladen...");
+
+    if (sourceCanvas.__wasDownscaledForMemory) {
+      setStatus(
+        "Sehr grosses Bild erkannt. Zur Stabilitaet wurde die Aufloesung reduziert. JPG wird hochgeladen...",
+        "warn",
+      );
+    } else {
+      setStatus("Foto geladen. JPG wird hochgeladen...");
+    }
+
     uploadJpegThenPngInBackground(sourceCanvas);
   } catch (error) {
     console.error(error);

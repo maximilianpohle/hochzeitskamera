@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.53 - 2026-06-21
+- Anleitungstext im Foto-Quiz praezisiert: Seite nach jedem Foto offen lassen, bis die Speicher-Meldung erscheint.
+- Hinweis ergaenzt, dass bei laufenden Uploads nicht geschlossen oder neu geladen werden soll, bis die Speicherung bestaetigt ist.
+
 ## 0.1.52 - 2026-06-21
 - Speicherprobleme auf manchen Android-Geraeten reduziert: sehr grosse Bilder werden vor der Konvertierung automatisch auf ein sicheres Verarbeitungs-Limit skaliert.
 - Upload-Pipeline auf async/await umgestellt und Canvas-Speicher nach JPG/PNG-Upload explizit freigegeben, um OOM-Fehler wie "zu wenig speicher fuer vorherige operation" zu vermeiden.

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.62 - 2026-06-25
+- GitHub Actions Docker-Publish korrigiert: Build nutzt jetzt explizit `nginx/Dockerfile` statt implizit das Root-`Dockerfile`.
+- CI-Build ist damit konsistent zum Compose-Setup.
+
 ## 0.1.61 - 2026-06-25
 - GitHub Actions Workflow fuer Docker-Publish auf alle Branches erweitert.
 - Trigger fuer Push und Pull Request laufen jetzt branch-uebergreifend statt nur auf main.

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.61 - 2026-06-25
+- GitHub Actions Workflow fuer Docker-Publish auf alle Branches erweitert.
+- Trigger fuer Push und Pull Request laufen jetzt branch-uebergreifend statt nur auf main.
+
 ## 0.1.60 - 2026-06-25
 - Anleitungstext auf der statischen Seite erweitert: Bitte alle Hochzeitsbilder hochladen, damit Michelle & Nick lange Freude daran haben.
 - Deutlicher Hinweis ergaenzt, dass in der MagentaCloud gewartet werden muss, bis alle Bilder vollstaendig hochgeladen sind, bevor die Seite geschlossen wird.

@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.1.60 - 2026-06-25
+- Anleitungstext auf der statischen Seite erweitert: Bitte alle Hochzeitsbilder hochladen, damit Michelle & Nick lange Freude daran haben.
+- Deutlicher Hinweis ergaenzt, dass in der MagentaCloud gewartet werden muss, bis alle Bilder vollstaendig hochgeladen sind, bevor die Seite geschlossen wird.
+
+## 0.1.59 - 2026-06-25
+- Beschriftung des Haupt-Buttons auf der statischen Startseite von "Zur MagentaCloud" auf "Zum Upload" geaendert.
+- Ziel-URL bleibt unveraendert: `https://magentacloud.de/s/yEna9fya9EEMyPP`.
+
+## 0.1.58 - 2026-06-25
+- Statische Startseite um den bisherigen Inhalt erweitert: Titel "Foto-Quiz", bestehendes Bild `quiz.png` und der bekannte Anleitungstext sind wieder sichtbar.
+- Der einfache Button zur MagentaCloud bleibt erhalten.
+- Docker-Build kopiert den Ordner `img/` jetzt in den Nginx-Webroot, damit vorhandene Bilder direkt ausgeliefert werden.
+
+## 0.1.57 - 2026-06-25
+- Deployment auf eine einfache Nginx-Only-Variante umgestellt (kein Flask-Proxy mehr in Compose/Nginx).
+- Neue statische Startseite hinzugefuegt, die nur einen Button auf `https://magentacloud.de/s/yEna9fya9EEMyPP` bereitstellt.
+- HTTPS-Redirect/Self-Signed-Zertifikat-Logik entfernt; Zugriff jetzt direkt ueber HTTP auf Port 80.
+
 ## 0.1.56 - 2026-06-21
 - Intro-Textbereich als Scrollflaeche umgesetzt (`overflow-y: auto`), damit laengerer Text nicht hinter die Buttons laeuft.
 - Kartenlayout mit `min-height: 0` stabilisiert, damit der scrollbare Textbereich auf kleinen Displays korrekt funktioniert.
